@@ -4,6 +4,8 @@
 
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 
+![Repo Size](https://img.shields.io/github/repo-size/christophergaughan/terraform-aws-advanced-orchestration)
+
 
 This private repository demonstrates advanced event-driven architecture patterns on AWS using Terraform.
 
