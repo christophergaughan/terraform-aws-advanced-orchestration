@@ -22,7 +22,7 @@ This repo showcases how to:
 
 ---
 
-## 🗂️ Planned Module Structure
+## Planned Module Structure
 
 Below is the planned folder structure for advanced modular design. Each module will be isolated for reusability and clarity:
 
@@ -46,6 +46,8 @@ terraform-aws-advanced-orchestration/
 │       ├── variables.tf
 │       └── outputs.tf
 ```
+
+[View full architecture diagram PDF](docs/aws_terraform_v2.pdf)
 
 ##  Future Extensions
 
