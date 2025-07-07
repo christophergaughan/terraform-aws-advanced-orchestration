@@ -2,7 +2,7 @@ provider "aws" {
   region = "us-east-1"
 }
 
-# call EventBrisge module
+# call EventBridge module
 
 module "eventbridge" {
   source              = "./modules/eventbridge"
