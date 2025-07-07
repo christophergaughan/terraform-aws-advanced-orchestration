@@ -11,6 +11,10 @@ module "eventbridge" {
   schedule_expression = "rate(5 minutes)"
 }
 
+lambda_function_arn  = module.lambda.lambda_arn
+lambda_function_name = module.lambda.function_name
+
+
 # lambda module
 
 module "lambda" {
@@ -19,6 +23,7 @@ module "lambda" {
   role_arn       = "arn:aws:iam::123456789012:role/lambda-execution-role" # replace with your actual role later
   filename       = "lambda_function_payload.zip" # stub for now
 }
+
 
 # SageMaker module
 
