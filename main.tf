@@ -14,6 +14,34 @@ module "eventbridge" {
 lambda_function_arn  = module.lambda.lambda_arn
 lambda_function_name = module.lambda.function_name
 
+# Create IAM  policy for Lambda
+
+data "aws_iam_policy_document" "lambda_basic" {
+  statement {
+    actions = [
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
+      "logs:PutLogEvents"
+    ]
+    resources = ["arn:aws:logs:*:*:*"]
+  }
+
+  statement {
+    actions = [
+      "sagemaker:InvokeEndpoint"
+    ]
+    resources = ["*"] # You can further restrict this later to specific SageMaker endpoint ARNs
+  }
+}
+
+# Call IAM module
+
+module "iam_lambda" {
+  source      = "./modules/iam_lambda"
+  role_name   = "lambda-execution-role"
+  policy_json = data.aws_iam_policy_document.lambda_basic.json
+}
+
 
 # lambda module
 
