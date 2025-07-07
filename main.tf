@@ -48,8 +48,8 @@ module "iam_lambda" {
 module "lambda" {
   source         = "./modules/lambda"
   function_name  = "my_lambda_function"
-  role_arn       = "arn:aws:iam::123456789012:role/lambda-execution-role" # replace with your actual role later
-  filename       = "lambda_function_payload.zip" # stub for now
+  role_arn       = module.iam_lambda.role_arn
+  file           = "lambda_function_payload.zip" #made payload 
 }
 
 
