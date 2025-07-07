@@ -8,3 +8,15 @@ output "public_subnet_ids" {
   value       = aws_subnet.public[*].id
 }
 
+output "batch_subnet_id" {
+  value = aws_subnet.batch_private.id
+}
+
+output "realtime_subnet_id" {
+  value = aws_subnet.realtime_private.id
+}
+
+output "public_subnet_id" {
+  value = aws_subnet.public.id
+}
+

@@ -13,8 +13,7 @@ resource "aws_lambda_function" "this" {
   }
 
   vpc_config {
-    subnet_ids         = module.vpc.public_subnet_ids
-    security_group_ids = [] # Optional: add SGs later if needed
+    subnet_ids         = var.subnet_ids
+    security_group_ids = var.security_group_ids
   }
 }
-

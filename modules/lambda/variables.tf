@@ -13,3 +13,18 @@ variable "filename" {
   type        = string
 }
 
+# subnets
+
+variable "subnet_ids" {
+  description = "Subnet IDs for Lambda VPC config"
+  type        = list(string)
+  default     = []
+}
+
+variable "security_group_ids" {
+  description = "Security group IDs for Lambda VPC config"
+  type        = list(string)
+  default     = []
+}
+
+

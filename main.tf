@@ -4,6 +4,16 @@ provider "aws" {
   region = "us-east-1"
 }
 
+provider "aws" {
+  region = "us-east-1"
+}
+
+module "vpc" {
+  source              = "./modules/vpc"
+  vpc_cidr            = "10.0.0.0/16"
+  public_subnet_count = 1
+}
+
 # call EventBridge module
 
 module "eventbridge" {
@@ -51,8 +61,12 @@ module "lambda" {
   source         = "./modules/lambda"
   function_name  = "my_lambda_function"
   role_arn       = module.iam_lambda.role_arn
-  file           = "lambda_function_payload.zip" #made payload 
+  filename       = "lambda_function_payload.zip"
+  subnet_ids     = [module.vpc.realtime_subnet_id]
+  security_group_ids = []
 }
+
+
 
 
 # SageMaker module
