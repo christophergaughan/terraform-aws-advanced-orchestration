@@ -1,3 +1,5 @@
+data "aws_availability_zones" "available" {}
+
 provider "aws" {
   region = "us-east-1"
 }
@@ -30,7 +32,7 @@ data "aws_iam_policy_document" "lambda_basic" {
     actions = [
       "sagemaker:InvokeEndpoint"
     ]
-    resources = ["*"] # You can further restrict this later to specific SageMaker endpoint ARNs
+    resources = ["*"] # since this is ersaztz, can further restrict this later to specific SageMaker endpoint ARNs
   }
 }
 
