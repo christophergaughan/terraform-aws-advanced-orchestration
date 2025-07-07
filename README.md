@@ -1,5 +1,10 @@
 # Terraform AWS Advanced Orchestration
 
+![Terraform CI](https://github.com/christophergaughan/terraform-aws-advanced-orchestration/actions/workflows/terraform.yml/badge.svg)
+
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
+
+
 This private repository demonstrates advanced event-driven architecture patterns on AWS using Terraform.
 
 ---
