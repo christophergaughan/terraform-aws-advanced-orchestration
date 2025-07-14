@@ -8,12 +8,22 @@ resource "aws_lambda_function" "this" {
 
   environment {
     variables = {
-      SAGEMAKER_ENDPOINT_NAME = "my-sagemaker-endpoint"
+      SAGEMAKER_ENDPOINT_NAME = "my-sagemaker-endpoint" # update if needed
     }
   }
 
-  vpc_config {
-    subnet_ids         = var.subnet_ids
-    security_group_ids = var.security_group_ids
-  }
+  # Optional VPC config if using VPC
+  # vpc_config {
+  #   subnet_ids         = [module.vpc.realtime_subnet_id]
+  #   security_group_ids = []
+  # }
 }
+
+output "lambda_arn" {
+  value = aws_lambda_function.this.arn
+}
+
+output "function_name" {
+  value = aws_lambda_function.this.function_name
+}
+
