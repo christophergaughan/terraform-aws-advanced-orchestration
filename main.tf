@@ -46,11 +46,11 @@ module "lambda" {
 
 # EventBridge module
 module "eventbridge" {
-  source              = "./modules/eventbridge"
-  name                = "trigger-lambda-rule"
-  description         = "Periodic trigger for Lambda function"
-  schedule_expression = "rate(5 minutes)"
-  lambda_function_arn = module.lambda.lambda_arn
+  source               = "./modules/eventbridge"
+  name                 = "trigger-lambda-rule"
+  description          = "Periodic trigger for Lambda function"
+  schedule_expression  = "rate(5 minutes)"
+  lambda_function_arn  = module.lambda.lambda_arn
   lambda_function_name = module.lambda.function_name
 }
 
