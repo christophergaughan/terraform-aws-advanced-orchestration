@@ -4,12 +4,11 @@ provider "aws" {
   region = "us-east-1"
 }
 
-# EventBridge module
-module "eventbridge" {
-  source              = "./modules/eventbridge"
-  name                = "trigger-lambda-rule"
-  description         = "Periodic trigger for Lambda function"
-  schedule_expression = "rate(5 minutes)"
+# VPC module
+module "vpc" {
+  source              = "./modules/vpc"
+  vpc_cidr            = "10.0.0.0/16"
+  public_subnet_count = 1
 }
 
 # IAM Lambda module
@@ -37,19 +36,22 @@ module "iam_lambda" {
   policy_json = data.aws_iam_policy_document.lambda_basic.json
 }
 
-# VPC module
-module "vpc" {
-  source              = "./modules/vpc"
-  vpc_cidr            = "10.0.0.0/16"
-  public_subnet_count = 1
-}
-
 # Lambda module
 module "lambda" {
   source        = "./modules/lambda"
   function_name = "my_lambda_function"
   role_arn      = module.iam_lambda.role_arn
   filename      = "lambda_function_payload.zip"
+}
+
+# EventBridge module
+module "eventbridge" {
+  source              = "./modules/eventbridge"
+  name                = "trigger-lambda-rule"
+  description         = "Periodic trigger for Lambda function"
+  schedule_expression = "rate(5 minutes)"
+  lambda_function_arn = module.lambda.lambda_arn
+  lambda_function_name = module.lambda.function_name
 }
 
 # SageMaker module
