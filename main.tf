@@ -58,11 +58,11 @@ module "iam_lambda" {
 # lambda module
 
 module "lambda" {
-  source         = "./modules/lambda"
-  function_name  = "my_lambda_function"
-  role_arn       = module.iam_lambda.role_arn
-  filename       = "lambda_function_payload.zip"
-  subnet_ids     = [module.vpc.realtime_subnet_id]
+  source             = "./modules/lambda"
+  function_name      = "my_lambda_function"
+  role_arn           = module.iam_lambda.role_arn
+  filename           = "lambda_function_payload.zip"
+  subnet_ids         = [module.vpc.realtime_subnet_id]
   security_group_ids = []
 }
 
@@ -72,11 +72,11 @@ module "lambda" {
 # SageMaker module
 
 module "sagemaker" {
-  source            = "./modules/sagemaker"
-  model_name        = "my-sagemaker-model"
+  source             = "./modules/sagemaker"
+  model_name         = "my-sagemaker-model"
   execution_role_arn = "arn:aws:iam::123456789012:role/sagemaker-execution-role" # replace later
-  image             = "123456789012.dkr.ecr.us-east-1.amazonaws.com/my-sagemaker-image:latest"
-  model_data_url    = "s3://my-model-bucket/model.tar.gz"
+  image              = "123456789012.dkr.ecr.us-east-1.amazonaws.com/my-sagemaker-image:latest"
+  model_data_url     = "s3://my-model-bucket/model.tar.gz"
 }
 
 
