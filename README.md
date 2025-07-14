@@ -5,6 +5,9 @@
 
 ![Repo Size](https://img.shields.io/github/repo-size/christophergaughan/terraform-aws-advanced-orchestration)
 
+![Terraform CI](https://github.com/christophergaughan/terraform-aws-advanced-orchestration/actions/workflows/terraform.yml/badge.svg)
+
+
 
 This private repository demonstrates advanced event-driven architecture patterns on AWS using Terraform.
 
