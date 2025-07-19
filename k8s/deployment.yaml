@@ -1,20 +1,25 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: inference-app
+  name: warp-api
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
-      app: inference
+      app: warp-api
   template:
     metadata:
       labels:
-        app: inference
+        app: warp-api
     spec:
       containers:
-      - name: inference-container
-        image: your-dockerhub-username/your-image:latest
+      - name: api
+        image: christophergaughan/warp-api:latest
         ports:
-        - containerPort: 8080
+        - containerPort: 8000
+        envFrom:
+        - configMapRef:
+            name: warp-config
+        - secretRef:
+            name: aws-creds
 

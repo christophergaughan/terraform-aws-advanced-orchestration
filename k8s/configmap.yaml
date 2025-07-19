@@ -1,0 +1,10 @@
+# with env vars or CLI params
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: warp-config
+data:
+  MODE: production
+  DATA_PATH: /data
+

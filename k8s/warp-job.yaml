@@ -1,0 +1,21 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: warp-feature-job
+spec:
+  template:
+    spec:
+      containers:
+      - name: warp-runner
+        image: christophergaughan/warp-pipeline:latest  # Custom image with WARP pre-installed
+        command: ["/bin/sh", "-c"]
+        args: ["warp run scRNA-pipeline --input /data/input.h5 --output /data/processed"]
+        volumeMounts:
+          - name: data-volume
+            mountPath: /data
+      restartPolicy: Never
+      volumes:
+        - name: data-volume
+          persistentVolumeClaim:
+            claimName: warp-pvc
+
