@@ -5,7 +5,7 @@ This folder configures the observability layer for the orchestration platform us
 -  Amazon Managed Grafana
 -  EKS/ECS service metric scraping
 
-## 🔧 Setup
+## Setup
 
 ```
 cd monitoring/terraform
@@ -13,7 +13,7 @@ warp terraform init
 warp terraform apply
 ```
 
-# 📊 Monitoring Stack (Terraform Module)
+# Monitoring Stack (Terraform Module)
 
 This Terraform stack sets up:
 -  Amazon Managed Prometheus (AMP) for metric storage
