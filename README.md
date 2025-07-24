@@ -10,9 +10,8 @@
 
 > Production-ready AWS orchestration infrastructure with observability, CI/CD, and modular Terraform modules.
 
-## ✅ CI/CD Status
+## CI/CD Status
 
-### ✅ CI/CD Status
 
 | Workflow | Status |
 |----------|--------|
