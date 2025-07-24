@@ -14,10 +14,11 @@
 
 | Workflow | Status |
 |----------|--------|
-| Terraform Format & Validate | ![Terraform](https://github.com/christophergaughan/terraform-aws-advanced-orchestration/actions/workflows/terraform.yml/badge.svg) |
-| Terraform Lint | ![Lint](https://github.com/christophergaughan/terraform-aws-advanced-orchestration/actions/workflows/lint.yml/badge.svg) |
-| Deploy Monitoring Stack | ![Deploy Monitoring](https://github.com/christophergaughan/terraform-aws-advanced-orchestration/actions/workflows/deploy-monitoring.yml/badge.svg) |
+| Terraform Format & Validate | <img src="https://github.com/christophergaughan/terraform-aws-advanced-orchestration/actions/workflows/terraform.yml/badge.svg" alt="Terraform Format, Init & Validate" /> |
+| Terraform Lint | <img src="https://github.com/christophergaughan/terraform-aws-advanced-orchestration/actions/workflows/lint.yml/badge.svg" alt="Lint" /> |
+| Deploy Monitoring Stack | <img src="https://github.com/christophergaughan/terraform-aws-advanced-orchestration/actions/workflows/deploy-monitoring.yml/badge.svg" alt="Deploy Monitoring" /> |
 | Destroy Monitoring Stack | _Manual Only_ |
+
 
 
 
