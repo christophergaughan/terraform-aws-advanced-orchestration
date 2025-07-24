@@ -6,12 +6,11 @@ on:
       - 'monitoring/terraform/**'
     branches:
       - main
-  workflow_dispatch:
+  workflow_dispatch:  # Manual trigger option
 
 jobs:
   deploy-monitoring:
     uses: ./.github/workflows/terraform.yml
     with:
       aws-region: us-east-2
-    secrets: inherit
 
