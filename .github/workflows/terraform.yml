@@ -6,6 +6,11 @@ on:
       aws-region:
         required: true
         type: string
+    secrets:
+      AWS_ACCESS_KEY_ID:
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        required: true
 
 jobs:
   terraform:
@@ -25,6 +30,8 @@ jobs:
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.7
 
       - name: Terraform Format
         run: terraform fmt -check
