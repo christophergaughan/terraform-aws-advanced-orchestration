@@ -12,12 +12,14 @@
 
 ## ✅ CI/CD Status
 
+### ✅ CI/CD Status
+
 | Workflow | Status |
 |----------|--------|
-| Terraform Format & Validate | <img src="https://github.com/christophergaughan/terraform-aws-advanced-orchestration/actions/workflows/terraform.yml/badge.svg" alt="Terraform Format, Init & Validate" /> |
-| Terraform Lint | <img src="https://github.com/christophergaughan/terraform-aws-advanced-orchestration/actions/workflows/lint.yml/badge.svg" alt="Lint" /> |
+| Terraform Format & Validate | <img src="https://github.com/christophergaughan/terraform-aws-advanced-orchestration/actions/workflows/terraform.yml/badge.svg" alt="Terraform Format & Validate" /> |
+| Terraform Lint | <img src="https://github.com/christophergaughan/terraform-aws-advanced-orchestration/actions/workflows/lint.yml/badge.svg" alt="Terraform Lint" /> |
 | Deploy Monitoring Stack | <img src="https://github.com/christophergaughan/terraform-aws-advanced-orchestration/actions/workflows/deploy-monitoring.yml/badge.svg" alt="Deploy Monitoring" /> |
-| Destroy Monitoring Stack | _Manual Only_ |
+| Destroy Monitoring Stack | _Manual Only – Trigger via GitHub UI_ |
 
 
 
