@@ -7,11 +7,11 @@ resource "aws_prometheus_workspace" "monitoring" {
 }
 
 resource "aws_grafana_workspace" "monitoring" {
-  name                    = "orchestration-monitoring"
-  account_access_type     = "CURRENT_ACCOUNT"
+  name                     = "orchestration-monitoring"
+  account_access_type      = "CURRENT_ACCOUNT"
   authentication_providers = ["AWS_SSO"]
-  permission_type         = "SERVICE_MANAGED"
-  role_arn                = aws_iam_role.grafana_admin.arn
+  permission_type          = "SERVICE_MANAGED"
+  role_arn                 = aws_iam_role.grafana_admin.arn
 }
 
 resource "aws_iam_role" "grafana_admin" {

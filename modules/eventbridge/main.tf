@@ -1,14 +1,14 @@
 resource "aws_cloudwatch_event_rule" "this" {
-  name        = var.name
-  description = var.description
+  name                = var.name
+  description         = var.description
   schedule_expression = var.schedule_expression
 }
 
 # Add target source
 
 resource "aws_cloudwatch_event_target" "lambda_target" {
-  rule      = aws_cloudwatch_event_rule.this.name
-  arn       = var.lambda_function_arn
+  rule = aws_cloudwatch_event_rule.this.name
+  arn  = var.lambda_function_arn
 }
 
 # Add permissions for Eventbridge to invoke lambda
