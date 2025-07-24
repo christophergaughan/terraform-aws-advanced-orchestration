@@ -8,6 +8,19 @@
 ![Terraform CI](https://github.com/christophergaughan/terraform-aws-advanced-orchestration/actions/workflows/terraform.yml/badge.svg)
 
 
+> Production-ready AWS orchestration infrastructure with observability, CI/CD, and modular Terraform modules.
+
+## ✅ CI/CD Status
+
+| Workflow | Status |
+|----------|--------|
+| Terraform Format & Validate | ![Terraform](https://github.com/christophergaughan/terraform-aws-advanced-orchestration/actions/workflows/terraform.yml/badge.svg) |
+| Terraform Lint | ![Lint](https://github.com/christophergaughan/terraform-aws-advanced-orchestration/actions/workflows/lint.yml/badge.svg) |
+| Deploy Monitoring Stack | ![Deploy Monitoring](https://github.com/christophergaughan/terraform-aws-advanced-orchestration/actions/workflows/deploy-monitoring.yml/badge.svg) |
+| Destroy Monitoring Stack | _Manual Only_ |
+
+
+
 
 This private repository demonstrates advanced event-driven architecture patterns on AWS using Terraform.
 
