@@ -1,4 +1,4 @@
-name: 🛠️ Deploy Monitoring Stack
+name: Deploy Monitoring Stack
 
 on:
   push:
@@ -14,7 +14,7 @@ env:
 
 jobs:
   deploy-monitoring:
-    name: ⚙️ Terraform Apply (Monitoring)
+    name: Terraform Apply (Monitoring)
     runs-on: ubuntu-latest
 
     permissions:
