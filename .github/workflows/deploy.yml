@@ -1,0 +1,16 @@
+name: Deploy with Terraform Workflow
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    uses: christophergaughan/terraform-aws-advanced-orchestration/.github/workflows/terraform.yml@main
+    with:
+      aws-region: us-east-2
+    secrets:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
