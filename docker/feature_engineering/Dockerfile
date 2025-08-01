@@ -1,15 +1,25 @@
-# docker/feature_engineering/Dockerfile
-
+# Base image: slim to keep it light
 FROM python:3.10-slim
 
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+# Set working directory
 WORKDIR /app
 
-# Copy your script into the container
-COPY run_pca.py .
+# Install system dependencies
+RUN apt-get update && \
+    apt-get install -y build-essential gcc libglib2.0-0 libsm6 libxrender1 libxext6 curl && \
+    rm -rf /var/lib/apt/lists/*
 
-# Install required libraries
-RUN pip install pandas scikit-learn pyarrow numpy
+# Copy and install Python dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Run the feature engineering script by default
+# Copy all source code
+COPY . .
+
+# Run the PCA script as default
 CMD ["python", "run_pca.py"]
 
