@@ -28,3 +28,4 @@ jobs:
           framework: terraform
           config_file: .checkov.yml
           output_format: cli
+          soft_fail: false
