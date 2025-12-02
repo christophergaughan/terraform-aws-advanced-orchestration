@@ -36,3 +36,5 @@ override.tf.json
 .terraformrc
 terraform.rc
 lambda_function_payload.zip
+__pycache__/
+.pytest_cache/
