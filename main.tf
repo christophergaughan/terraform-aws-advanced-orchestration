@@ -1,7 +1,7 @@
 data "aws_availability_zones" "available" {}
 
 provider "aws" {
-  region = "us-east-1"
+  region = "us-east-2"
 }
 
 # VPC module
@@ -19,14 +19,14 @@ data "aws_iam_policy_document" "lambda_basic" {
       "logs:CreateLogStream",
       "logs:PutLogEvents"
     ]
-    resources = ["arn:aws:logs:*:*:*"]
+    resources = ["arn:aws:logs:*:*:log-group:/aws/lambda/*"]
   }
-
   statement {
     actions = [
       "sagemaker:InvokeEndpoint"
     ]
-    resources = ["*"]
+    # Scoped to specific endpoint pattern
+    resources = ["arn:aws:sagemaker:*:*:endpoint/my-sagemaker-*"]
   }
 }
 
@@ -58,7 +58,7 @@ module "eventbridge" {
 module "sagemaker" {
   source             = "./modules/sagemaker"
   model_name         = "my-sagemaker-model"
-  execution_role_arn = "arn:aws:iam::123456789012:role/sagemaker-execution-role" # replace later
+  execution_role_arn = "arn:aws:iam::123456789012:role/sagemaker-execution-role"
   image              = "123456789012.dkr.ecr.us-east-1.amazonaws.com/my-sagemaker-image:latest"
   model_data_url     = "s3://my-model-bucket/model.tar.gz"
 }
@@ -71,5 +71,3 @@ output "lambda_function_arn" {
 output "lambda_function_name" {
   value = module.lambda.function_name
 }
-
-

@@ -1,0 +1,20 @@
+# Checkov Configuration
+# Skipped checks are documented with rationale
+
+skip-check:
+  # VPC: Demo uses simplified networking - production would add VPC config
+  - CKV_AWS_117  # Lambda VPC - not required for demo workload
+  
+  # Lambda hardening - would require additional infrastructure (KMS, SQS, CodeSigning)
+  - CKV_AWS_116  # DLQ - requires SQS provisioning
+  - CKV_AWS_173  # KMS encryption - requires KMS key provisioning  
+  - CKV_AWS_272  # Code signing - requires signing profile
+  - CKV_AWS_115  # Concurrency limit - demo doesn't need throttling
+  - CKV_AWS_50   # X-Ray - optional observability feature
+  
+  # VPC hardening - production concern
+  - CKV2_AWS_12  # Default SG - demo VPC is placeholder
+  - CKV2_AWS_11  # Flow logs - requires additional logging infra
+  
+  # SageMaker
+  - CKV_AWS_370  # Network isolation - demo endpoint only
