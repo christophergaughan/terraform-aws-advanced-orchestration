@@ -26,5 +26,5 @@ jobs:
         with:
           directory: .
           framework: terraform
-          soft_fail: false
+          config_file: .checkov.yml
           output_format: cli
