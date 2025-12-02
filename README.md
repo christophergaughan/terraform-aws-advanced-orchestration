@@ -248,3 +248,47 @@ AI/ML Specialist | Biomanufacturing Infrastructure
 
 
 
+
+---
+
+## 🔐 Security & Operations
+
+### CI/CD Pipeline
+| Workflow | Purpose |
+|----------|---------|
+| `terraform.yml` | Format, init, validate |
+| `lint.yml` | Recursive format checks |
+| `security-scan.yml` | tfsec + Checkov static analysis |
+| `plan-on-pr.yml` | Posts plan output to PR comments |
+
+### Authentication
+Supports AWS OIDC federation for keyless CI/CD authentication. See `plan-on-pr.yml` for configuration template.
+
+### State Management
+Remote state with S3 + DynamoDB locking. See `backend.tf` for configuration.
+
+### Security Scanning
+- **tfsec**: Terraform-specific security misconfigurations
+- **Checkov**: Broad policy-as-code compliance (CIS, SOC2, etc.)
+
+---
+
+## 🔐 Security & Operations
+
+### CI/CD Pipeline
+| Workflow | Purpose |
+|----------|---------|
+| `terraform.yml` | Format, init, validate |
+| `lint.yml` | Recursive format checks |
+| `security-scan.yml` | tfsec + Checkov static analysis |
+| `plan-on-pr.yml` | Posts plan output to PR comments |
+
+### Authentication
+Supports AWS OIDC federation for keyless CI/CD authentication. See `plan-on-pr.yml` for configuration template.
+
+### State Management
+Remote state with S3 + DynamoDB locking. See `backend.tf` for configuration.
+
+### Security Scanning
+- **tfsec**: Terraform-specific security misconfigurations
+- **Checkov**: Broad policy-as-code compliance (CIS, SOC2, etc.)
