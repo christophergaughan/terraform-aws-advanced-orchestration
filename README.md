@@ -23,7 +23,7 @@
 
 ## Overview
 
-This repository demonstrates advanced event-driven architecture patterns for automating machine learning and data processing workflows on AWS using Infrastructure as Code (Terraform).
+This repository demonstrates advanced event-driven architecture patterns for automating machine learning and data processing workflows on AWS using Infrastructure as Code (IaC) with Terraform.
 
 **Core Components:**
 - **EventBridge**: Event-driven workflow triggers (schedules, S3 events, custom events)
@@ -117,7 +117,7 @@ terraform-aws-advanced-orchestration/
 
 **Estimated Total:** $20-60/month for typical ML workload
 
-**Design Philosophy:** Serverless-first architecture scales to zero when idle, minimizing costs during low-activity periods.
+**Design Philosophy:** A serverless-first architecture scales to zero when idle, minimizing costs during periods of low activity.
 
 ---
 
@@ -139,7 +139,7 @@ terraform-aws-advanced-orchestration/
 
 ### Problem
 Manual ML workflows are slow, error-prone, and don't scale:
-- Scientists manually upload data, trigger training, deploy models
+- Scientists manually upload data, trigger training, and deploy models
 - No version control for infrastructure
 - Difficult to reproduce experiments
 - High operational overhead
@@ -148,7 +148,7 @@ Manual ML workflows are slow, error-prone, and don't scale:
 Infrastructure as Code + Event-Driven Architecture:
 - ✅ **Automation**: Eliminate manual steps from data → trained model
 - ✅ **Reproducibility**: Every deployment is version-controlled and tested
-- ✅ **Scalability**: Handle 1 or 1000 experiments with same infrastructure
+- ✅ **Scalability**: Handle 1 or 1000 experiments with the same infrastructure
 - ✅ **Observability**: Full visibility into pipeline health and performance
 - ✅ **Collaboration**: Scientists trigger workflows, engineers manage infrastructure
 
@@ -211,7 +211,7 @@ sagemaker_instance  = "ml.m5.large"
 
 ## Use Cases
 
-This architecture pattern is applicable to:
+This architecture pattern applies to:
 - **Biomanufacturing**: Automated protein purification optimization
 - **Drug Discovery**: High-throughput screening analysis pipelines
 - **Genomics**: RNA-seq processing and variant calling workflows
@@ -220,9 +220,9 @@ This architecture pattern is applicable to:
 
 ---
 
-## 📄 License & Disclaimer
+## License & Disclaimer
 
-**Note**: This repository contains reference architecture and starter code for demonstration purposes. While production-ready patterns are used, additional hardening (security reviews, compliance validation, load testing) is recommended before deploying in production environments.
+**Note**: This repository contains reference architecture and starter code for demonstration purposes. While production-ready patterns are used, additional hardening measures (such as security reviews, compliance validation, and load testing) are recommended before deploying in production environments.
 
 ---
 
@@ -236,7 +236,7 @@ Contributions welcome! Please open an issue or pull request for:
 
 ---
 
-## 📧 Contact
+## Contact
 
 **Christopher Gaughan, Ph.D.**  
 AI/ML Specialist | Biomanufacturing Infrastructure  
@@ -273,7 +273,7 @@ Remote state with S3 + DynamoDB locking. See `backend.tf` for configuration.
 
 ---
 
-## 🔐 Security & Operations
+## Security & Operations
 
 ### CI/CD Pipeline
 | Workflow | Purpose |
