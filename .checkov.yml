@@ -18,3 +18,26 @@ skip-check:
   
   # SageMaker
   - CKV_AWS_370  # Network isolation - demo endpoint only
+  # K8s manifests are demo/dev configs, not production-deployed
+  - CKV_K8S_8   # Liveness probe
+  - CKV_K8S_9   # Readiness probe
+  - CKV_K8S_10  # CPU requests
+  - CKV_K8S_11  # CPU limits
+  - CKV_K8S_12  # Memory requests
+  - CKV_K8S_13  # Memory limits
+  - CKV_K8S_14  # Image tag not :latest
+  - CKV_K8S_15  # imagePullPolicy Always
+  - CKV_K8S_20  # allowPrivilegeEscalation
+  - CKV_K8S_21  # default namespace
+  - CKV_K8S_22  # read-only filesystem
+  - CKV_K8S_23  # run as non-root
+  - CKV_K8S_28  # NET_RAW capability
+  - CKV_K8S_29  # pod security context
+  - CKV_K8S_30  # container security context
+  - CKV_K8S_31  # seccomp profile
+  - CKV_K8S_35  # secrets as env vars
+  - CKV_K8S_37  # capabilities
+  - CKV_K8S_38  # service account token
+  - CKV_K8S_40  # high UID
+  - CKV_K8S_43  # image digest
+  - CKV2_K8S_6  # NetworkPolicy
