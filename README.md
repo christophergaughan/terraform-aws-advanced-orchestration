@@ -264,7 +264,7 @@ AI/ML Specialist | Biomanufacturing Infrastructure
 
 ---
 
-## 🔐 Security & Operations
+## 🔐 Security & Operations in brief
 
 ### CI/CD Pipeline
 | Workflow | Purpose |
