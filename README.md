@@ -49,6 +49,18 @@ This architecture was developed to support automated ML workflows for protein ch
 
 ---
 
+## 🔐 Security & Compliance
+
+Infrastructure security scanning is integrated into CI/CD:
+
+| Tool | Purpose |
+|------|---------|
+| **Checkov** | Policy-as-code compliance (CIS, SOC2 benchmarks) |
+| **tfsec** | Terraform-specific security misconfigurations |
+
+Findings are either fixed or documented with rationale in `.checkov.yml`. K8s manifests are intentionally dev/demo configs with security checks skipped and documented—production deployments would require full hardening.
+---
+
 ## Architecture
 
 ### Event-Driven Pipeline Flow
