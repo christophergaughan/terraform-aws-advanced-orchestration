@@ -64,68 +64,27 @@ S3 Upload → EventBridge Rule → Lambda Function → SageMaker Job → Model E
 
 Modular design for reusability across projects:
 ```
-terraform-aws-advanced-orchestration
-.
-├── data
-├── docker
-│   └── feature_engineering
-│       └── data
-├── docs
-├── k8s
-├── lambda_function
-│   ├── __pycache__
-│   ├── bin
-│   │   └── __pycache__
-│   ├── boto3
-│   │   ├── __pycache__
-│   │   ├── data
-│   │   ├── docs
-│   │   ├── dynamodb
-│   │   ├── ec2
-│   │   ├── examples
-│   │   ├── resources
-│   │   └── s3
-│   ├── boto3-1.39.3.dist-info
-│   ├── botocore
-│   │   ├── __pycache__
-│   │   ├── crt
-│   │   ├── data
-│   │   ├── docs
-│   │   ├── retries
-│   │   └── vendored
-│   ├── botocore-1.39.3.dist-info
-│   ├── dateutil
-│   │   ├── __pycache__
-│   │   ├── parser
-│   │   ├── tz
-│   │   └── zoneinfo
-│   ├── jmespath
-│   │   └── __pycache__
-│   ├── jmespath-1.0.1.dist-info
-│   ├── python_dateutil-2.9.0.post0.dist-info
-│   ├── s3transfer
-│   │   └── __pycache__
-│   ├── s3transfer-0.13.0.dist-info
-│   ├── six-1.17.0.dist-info
-│   ├── urllib3
-│   │   ├── __pycache__
-│   │   ├── contrib
-│   │   ├── http2
-│   │   └── util
-│   └── urllib3-2.5.0.dist-info
-│       └── licenses
-├── modules
-│   ├── eventbridge
-│   ├── iam_lambda
-│   ├── iam_sagemaker
-│   ├── lambda
-│   ├── sagemaker
-│   └── vpc
-├── monitoring
-│   └── terraform
-├── notebooks
-└── tests
-    └── __pycache__
+terraform-aws-advanced-orchestration/
+├── data/                    # RNA-seq dataset
+├── docker/                  # Container definitions
+│   └── feature_engineering/
+├── docs/                    # Architecture diagrams
+├── k8s/                     # Kubernetes manifests (dev/demo)
+├── lambda_function/         # Serverless inference handler
+├── modules/                 # Reusable Terraform modules
+│   ├── eventbridge/
+│   ├── iam_lambda/
+│   ├── iam_sagemaker/
+│   ├── lambda/
+│   ├── sagemaker/
+│   └── vpc/
+├── monitoring/              # Observability stack
+│   └── terraform/
+├── notebooks/               # Jupyter analysis
+├── tests/                   # pytest suite
+├── .checkov.yml             # Security scan config
+├── backend.tf               # Remote state (templated)
+└── main.tf                  # Root module
 ```
 
 ---
