@@ -1,0 +1,5 @@
+# Fix language detection - surface HCL/Terraform as primary language
+*.py linguist-detectable=false
+notebooks/** linguist-documentation
+data/** linguist-documentation
+docker/** linguist-documentation
