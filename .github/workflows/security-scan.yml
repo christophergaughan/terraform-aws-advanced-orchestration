@@ -15,6 +15,11 @@ jobs:
         uses: aquasecurity/tfsec-action@v1.0.3
         with:
           soft_fail: false
+          # The action resolves the tfsec release through the GitHub API.
+          # Unauthenticated, shared runner IPs hit the rate limit and the job
+          # fails before any scanning happens - which looks like a security
+          # finding but is not one.
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 
   checkov:
     name: Checkov

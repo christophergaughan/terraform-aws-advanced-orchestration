@@ -1,4 +1,13 @@
-data "aws_availability_zones" "available" {}
+data "aws_availability_zones" "available" {
+  # Pin zone identity explicitly. Subnet placement below indexes into
+  # .names, so an unfiltered data source would silently reshuffle subnets
+  # across AZs if AWS adds one to the region. Allowlisting zone-name keeps
+  # the set closed and the plan deterministic.
+  filter {
+    name   = "zone-name"
+    values = var.availability_zones
+  }
+}
 
 resource "aws_vpc" "this" {
   cidr_block           = var.vpc_cidr

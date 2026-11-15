@@ -10,3 +10,9 @@ variable "public_subnet_count" {
   default     = 2
 }
 
+
+variable "availability_zones" {
+  description = "Explicit list of availability zone names to place subnets in. Pinned rather than discovered so that subnet-to-AZ mapping stays stable across applies."
+  type        = list(string)
+  default     = ["us-east-2a", "us-east-2b", "us-east-2c"]
+}
