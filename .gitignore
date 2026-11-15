@@ -38,3 +38,22 @@ terraform.rc
 lambda_function_payload.zip
 __pycache__/
 .pytest_cache/
+
+# Vendored Python packages — installed from requirements.txt at build time
+lambda_function/boto3/
+lambda_function/botocore/
+lambda_function/dateutil/
+lambda_function/jmespath/
+lambda_function/s3transfer/
+lambda_function/urllib3/
+lambda_function/bin/
+lambda_function/six.py
+lambda_function/*.dist-info/
+lambda_function/*.egg-info/
+
+# Python bytecode
+__pycache__/
+*.pyc
+
+# macOS
+.DS_Store
