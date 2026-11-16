@@ -1,0 +1,29 @@
+name: Terraform Validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  root:
+    name: Root stack
+    uses: ./.github/workflows/terraform.yml
+    with:
+      working-directory: .
+
+  monitoring:
+    name: Monitoring stack
+    uses: ./.github/workflows/terraform.yml
+    with:
+      working-directory: monitoring/terraform
+
+  bootstrap:
+    name: Bootstrap stack
+    uses: ./.github/workflows/terraform.yml
+    with:
+      working-directory: bootstrap

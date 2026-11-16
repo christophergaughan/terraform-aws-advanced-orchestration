@@ -5,7 +5,7 @@
 
 ![Repo Size](https://img.shields.io/github/repo-size/christophergaughan/terraform-aws-advanced-orchestration)
 
-![Terraform CI](https://github.com/christophergaughan/terraform-aws-advanced-orchestration/actions/workflows/terraform.yml/badge.svg)
+[![Terraform Validate](https://github.com/christophergaughan/terraform-aws-advanced-orchestration/actions/workflows/validate.yml/badge.svg)](https://github.com/christophergaughan/terraform-aws-advanced-orchestration/actions/workflows/validate.yml)
 
 
 > Production-ready AWS orchestration infrastructure with observability, CI/CD, and modular Terraform modules.
@@ -15,10 +15,12 @@
 
 | Workflow | Status |
 |----------|--------|
-| Terraform Format & Validate | <img src="https://github.com/christophergaughan/terraform-aws-advanced-orchestration/actions/workflows/terraform.yml/badge.svg" alt="Terraform Format & Validate" /> |
-| Terraform Lint | <img src="https://github.com/christophergaughan/terraform-aws-advanced-orchestration/actions/workflows/lint.yml/badge.svg" alt="Terraform Lint" /> |
-| Deploy Monitoring Stack | <img src="https://github.com/christophergaughan/terraform-aws-advanced-orchestration/actions/workflows/deploy-monitoring.yml/badge.svg" alt="Deploy Monitoring" /> |
-| Destroy Monitoring Stack | _Manual Only – Trigger via GitHub UI_ |
+| Terraform Validate (root, monitoring, bootstrap) | <a href="https://github.com/christophergaughan/terraform-aws-advanced-orchestration/actions/workflows/validate.yml"><img src="https://github.com/christophergaughan/terraform-aws-advanced-orchestration/actions/workflows/validate.yml/badge.svg" alt="Terraform Validate" /></a> |
+| Terraform Lint | <a href="https://github.com/christophergaughan/terraform-aws-advanced-orchestration/actions/workflows/lint.yml"><img src="https://github.com/christophergaughan/terraform-aws-advanced-orchestration/actions/workflows/lint.yml/badge.svg" alt="Terraform Lint" /></a> |
+| Security Scan (tfsec + Checkov) | <a href="https://github.com/christophergaughan/terraform-aws-advanced-orchestration/actions/workflows/security-scan.yml"><img src="https://github.com/christophergaughan/terraform-aws-advanced-orchestration/actions/workflows/security-scan.yml/badge.svg" alt="Security Scan" /></a> |
+| Unit Tests | <a href="https://github.com/christophergaughan/terraform-aws-advanced-orchestration/actions/workflows/unit-tests.yml"><img src="https://github.com/christophergaughan/terraform-aws-advanced-orchestration/actions/workflows/unit-tests.yml/badge.svg" alt="Unit Tests" /></a> |
+| Terraform Plan on PR | _Runs on pull requests; posts each stack's plan as a comment_ |
+| Terraform Apply / Destroy | _Manual, approval-gated (see [CI/CD and Operations](#cicd-and-operations))_ |
 
 
 ## Overview
@@ -95,7 +97,8 @@ terraform-aws-advanced-orchestration/
 ├── notebooks/               # Jupyter analysis
 ├── tests/                   # pytest suite
 ├── .checkov.yml             # Security scan config
-├── backend.tf               # Remote state (templated)
+├── bootstrap/               # One-time setup: state bucket + GitHub OIDC roles
+├── backend.tf               # Remote state (S3, native locking)
 └── main.tf                  # Root module
 ```
 
@@ -191,34 +194,35 @@ Infrastructure as Code + Event-Driven Architecture:
 ## Getting Started
 
 ### Prerequisites
-- AWS Account with appropriate permissions
-- Terraform >= 1.5.0
-- AWS CLI configured with credentials
+- AWS account and AWS CLI signed in with permissions to create IAM roles and S3 buckets
+- Terraform >= 1.10 (native S3 state locking)
+- GitHub CLI (`gh`) for the one-time repo setup
 
-### Quick Deploy
+### First-time setup
+State lives in S3 and CI authenticates to AWS with OIDC, so there is a one-time
+bootstrap. Follow [`bootstrap/README.md`](bootstrap/README.md).
+
+### Working locally
 ```bash
-# Clone repository
 git clone https://github.com/christophergaughan/terraform-aws-advanced-orchestration.git
 cd terraform-aws-advanced-orchestration
 
-# Initialize Terraform
-terraform init
+# The state bucket name is kept out of the repo; read it from the bootstrap stack
+BUCKET=$(terraform -chdir=bootstrap output -raw state_bucket)
 
-# Review planned changes
+terraform init -backend-config="bucket=${BUCKET}"
 terraform plan
+```
 
-# Deploy infrastructure
-terraform apply
+Validation needs no AWS access at all:
+```bash
+terraform init -backend=false && terraform validate && terraform test
 ```
 
 ### Configuration
-Customize deployment by editing `variables.tf` or creating a `terraform.tfvars` file:
-```hcl
-aws_region          = "us-east-1"
-project_name        = "my-ml-pipeline"
-lambda_memory_mb    = 512
-sagemaker_instance  = "ml.m5.large"
-```
+Settings live in `main.tf` and each module's `variables.tf`. The SageMaker
+model in `main.tf` uses placeholder values (execution role, image, model
+artifact); replace them before applying the root stack.
 
 ---
 
@@ -259,49 +263,41 @@ AI/ML Specialist | Biomanufacturing Infrastructure
 
 **Built with** ❤️ **for reproducible, scalable ML infrastructure**
 
-
-
-
 ---
 
-## 🔐 Security & Operations in brief
+## CI/CD and Operations
 
-### CI/CD Pipeline
-| Workflow | Purpose |
-|----------|---------|
-| `terraform.yml` | Format, init, validate |
-| `lint.yml` | Recursive format checks |
-| `security-scan.yml` | tfsec + Checkov static analysis |
-| `plan-on-pr.yml` | Posts plan output to PR comments |
+### Pipeline
+| Stage | Workflow | AWS access | When |
+|-------|----------|------------|------|
+| Validate | `validate.yml` → `terraform.yml` (reusable) | None | Every push and PR |
+| Format | `lint.yml` | None | Every push and PR |
+| Security | `security-scan.yml` (tfsec per stack + Checkov) | None | Push to main and PRs |
+| Plan | `plan-on-pr.yml` | Read-only plan role | PRs to main; plan posted as a comment |
+| Apply / Destroy | `terraform-apply.yml` | Apply role | Manual; requires approval on the `aws-apply` environment |
 
-### Authentication
-Supports AWS OIDC federation for keyless CI/CD authentication. See `plan-on-pr.yml` for configuration template.
-
-### State Management
-Remote state with S3 + DynamoDB locking. See `backend.tf` for configuration.
-
-### Security Scanning
-- **tfsec**: Terraform-specific security misconfigurations
-- **Checkov**: Broad policy-as-code compliance (CIS, SOC2, etc.)
-
----
-
-## Security & Operations
-
-### CI/CD Pipeline
-| Workflow | Purpose |
-|----------|---------|
-| `terraform.yml` | Format, init, validate |
-| `lint.yml` | Recursive format checks |
-| `security-scan.yml` | tfsec + Checkov static analysis |
-| `plan-on-pr.yml` | Posts plan output to PR comments |
+Validation includes `terraform test` against a mocked AWS provider, which
+catches plan-time errors that `terraform validate` cannot see, with no
+credentials and no cost.
 
 ### Authentication
-Supports AWS OIDC federation for keyless CI/CD authentication. See `plan-on-pr.yml` for configuration template.
+GitHub Actions assumes AWS roles through OIDC; the repository stores no AWS
+access keys for Terraform. Two roles, split by blast radius:
+- **Plan role**: AWS `ReadOnlyAccess` plus read/write on the exact state and
+  lock objects. Assumable only from pull requests and from `main`.
+- **Apply role**: can change infrastructure. Assumable only by jobs running in
+  the `aws-apply` environment, which requires a reviewer's approval. The apply
+  workflow shows the plan first and refuses to apply if the plan changed after
+  approval.
 
 ### State Management
-Remote state with S3 + DynamoDB locking. See `backend.tf` for configuration.
+Remote state in a versioned, encrypted, TLS-only S3 bucket with native S3
+locking (`use_lockfile`, Terraform >= 1.10), one key per stack. The bucket name
+is passed at `terraform init` rather than committed.
 
 ### Security Scanning
-- **tfsec**: Terraform-specific security misconfigurations
+- **tfsec**: Terraform-specific misconfigurations, run separately on each stack
 - **Checkov**: Broad policy-as-code compliance (CIS, SOC2, etc.)
+
+Exceptions are documented next to the code they apply to (`#tfsec:ignore`,
+`#checkov:skip`) or in `.checkov.yml`, each with its reason.

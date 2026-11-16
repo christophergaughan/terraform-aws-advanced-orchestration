@@ -72,15 +72,19 @@ class TestTfsecJob:
         assert tfsec_step['uses'] == 'aquasecurity/tfsec-action@v1.0.3'
 
     def test_tfsec_soft_fail_disabled(self, workflow_config):
-        """Test that tfsec is configured to fail on issues (soft_fail=false)."""
+        """Test that tfsec fails the build on findings.
+
+        tfsec-action v1.0.3 enables --soft-fail whenever the soft_fail input
+        is non-empty ([ -n "$INPUT_SOFT_FAIL" ]), so even `soft_fail: false`
+        turns soft-fail ON. The only hard-fail configuration is to omit it.
+        """
         steps = workflow_config['jobs']['tfsec']['steps']
         tfsec_step = next(
             (s for s in steps if s.get('name') == 'tfsec'),
             None
         )
         assert tfsec_step is not None
-        assert 'with' in tfsec_step
-        assert tfsec_step['with']['soft_fail'] is False
+        assert 'soft_fail' not in tfsec_step.get('with', {})
 
     def test_tfsec_uses_aquasecurity_action(self, workflow_config):
         """Test that the workflow uses the official aquasecurity tfsec action."""

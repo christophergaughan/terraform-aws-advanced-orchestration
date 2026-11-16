@@ -1,0 +1,179 @@
+name: Terraform Apply / Destroy
+
+# Manual, approval-gated changes to real AWS resources.
+#
+#   1. plan  - read-only role. Writes the plan to the run summary so the
+#              reviewer can see exactly what will change.
+#   2. apply - waits for approval on the "aws-apply" environment, re-plans
+#              with the apply role, refuses to continue if that plan's
+#              summary differs from the approved one, then applies it.
+#
+# The plan file is deliberately NOT passed between jobs as an artifact:
+# artifacts in a public repo are downloadable and plan files hold
+# unredacted values.
+
+on:
+  workflow_dispatch:
+    inputs:
+      stack:
+        description: Stack to change
+        type: choice
+        options:
+          - monitoring
+          # - root   # add back once the SageMaker placeholders in main.tf
+          #            point at a real execution role, image, and model artifact
+      action:
+        description: What to do
+        type: choice
+        options:
+          - apply
+          - destroy
+        default: apply
+
+permissions:
+  id-token: write   # OIDC
+  contents: read
+  actions: read     # read the aws-apply environment's protection rules
+
+# One apply/destroy per stack at a time.
+concurrency:
+  group: terraform-apply-${{ inputs.stack }}
+  cancel-in-progress: false
+
+env:
+  TF_STATE_BUCKET: ${{ vars.TF_STATE_BUCKET }}
+  AWS_REGION: us-east-2
+  ACTION: ${{ inputs.action }}
+  STACK: ${{ inputs.stack }}
+
+jobs:
+  plan:
+    name: Plan ${{ inputs.action }} (${{ inputs.stack }})
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    outputs:
+      dir: ${{ steps.stack.outputs.dir }}
+      has_changes: ${{ steps.plan.outputs.has_changes }}
+      summary: ${{ steps.plan.outputs.summary }}
+
+    steps:
+      # GitHub silently creates a missing environment WITHOUT protection, which
+      # would remove the approval gate. Refuse to run until a reviewer is set.
+      - name: Require approval gate on aws-apply
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          reviewers=$(gh api "repos/${GITHUB_REPOSITORY}/environments/aws-apply" \
+            --jq '[.protection_rules[]? | select(.type == "required_reviewers")] | length' 2>/dev/null || echo 0)
+          if [ "$reviewers" -lt 1 ]; then
+            echo "::error::Environment 'aws-apply' is missing or has no required reviewer. Run bootstrap/configure-github.sh first."
+            exit 1
+          fi
+
+      - uses: actions/checkout@v7
+
+      - name: Resolve stack directory
+        id: stack
+        run: |
+          case "$STACK" in
+            root)       echo "dir=." >> "$GITHUB_OUTPUT" ;;
+            monitoring) echo "dir=monitoring/terraform" >> "$GITHUB_OUTPUT" ;;
+            *) echo "::error::Unknown stack: $STACK"; exit 1 ;;
+          esac
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: 1.17.2
+          terraform_wrapper: false
+
+      - name: Configure AWS Credentials (OIDC, read-only plan role)
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ secrets.AWS_PLAN_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+          mask-aws-account-id: true
+
+      - name: Terraform Init
+        working-directory: ${{ steps.stack.outputs.dir }}
+        run: terraform init -input=false -backend-config="bucket=${TF_STATE_BUCKET}"
+
+      - name: Terraform Plan
+        id: plan
+        working-directory: ${{ steps.stack.outputs.dir }}
+        run: |
+          args=(-input=false -no-color -lock-timeout=5m -detailed-exitcode)
+          if [ "$ACTION" = "destroy" ]; then args+=(-destroy); fi
+
+          set +e
+          terraform plan "${args[@]}" > plan.txt 2>&1
+          code=$?
+          set -e
+          cat plan.txt
+
+          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+          {
+            echo "### Terraform plan: ${ACTION} \`${STACK}\`"
+            echo '```'
+            sed "s/${ACCOUNT_ID}/<account-id>/g" plan.txt | head -c 60000
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          case "$code" in
+            0) echo "has_changes=false" >> "$GITHUB_OUTPUT"
+               echo "No changes: nothing to ${ACTION}." >> "$GITHUB_STEP_SUMMARY" ;;
+            2) echo "has_changes=true" >> "$GITHUB_OUTPUT"
+               summary=$(grep -E '^Plan: ' plan.txt || echo "Changes to outputs only")
+               echo "summary=${summary}" >> "$GITHUB_OUTPUT" ;;
+            *) exit "$code" ;;
+          esac
+
+  apply:
+    name: ${{ inputs.action }} (${{ inputs.stack }}) after approval
+    needs: plan
+    if: needs.plan.outputs.has_changes == 'true'
+    runs-on: ubuntu-latest
+    environment: aws-apply
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ needs.plan.outputs.dir }}
+    env:
+      APPROVED_SUMMARY: ${{ needs.plan.outputs.summary }}
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: 1.17.2
+          terraform_wrapper: false
+
+      - name: Configure AWS Credentials (OIDC, approval-gated apply role)
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ secrets.AWS_APPLY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+          mask-aws-account-id: true
+
+      - name: Terraform Init
+        run: terraform init -input=false -backend-config="bucket=${TF_STATE_BUCKET}"
+
+      - name: Terraform Plan (saved)
+        run: |
+          args=(-input=false -no-color -lock-timeout=5m -out=tfplan)
+          if [ "$ACTION" = "destroy" ]; then args+=(-destroy); fi
+          terraform plan "${args[@]}" | tee plan.txt
+
+          summary=$(grep -E '^Plan: ' plan.txt || echo "Changes to outputs only")
+          if [ "$summary" != "$APPROVED_SUMMARY" ]; then
+            echo "::error::Plan changed since approval. Approved: '${APPROVED_SUMMARY}'. Now: '${summary}'. Re-run the workflow."
+            exit 1
+          fi
+
+      - name: Terraform Apply
+        run: terraform apply -input=false -lock-timeout=5m tfplan

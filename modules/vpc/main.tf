@@ -9,6 +9,9 @@ data "aws_availability_zones" "available" {
   }
 }
 
+# Flow logs need a log destination and IAM role this demo VPC does not
+# provision; recorded for Checkov as CKV2_AWS_11 in .checkov.yml.
+#tfsec:ignore:aws-ec2-require-vpc-flow-logs-for-all-vpcs
 resource "aws_vpc" "this" {
   cidr_block           = var.vpc_cidr
   enable_dns_support   = true

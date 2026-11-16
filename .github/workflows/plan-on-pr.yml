@@ -1,54 +1,88 @@
 name: Terraform Plan on PR
 
+# Real plans against real state, using the READ-ONLY plan role via OIDC.
+# Posts one comment per stack with the plan (account ID redacted).
+
 on:
   pull_request:
     branches: [main]
 
 permissions:
-  id-token: write
+  id-token: write       # OIDC token for the read-only plan role
   contents: read
-  pull-requests: write
+  pull-requests: write  # post the plan as a PR comment
 
 jobs:
   plan:
     name: Terraform Plan
+    # PRs from forks get no OIDC token; skip rather than fail.
+    if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - stack: root
+            dir: .
+          - stack: monitoring
+            dir: monitoring/terraform
+    defaults:
+      run:
+        # Explicit bash runs with -eo pipefail, so a failed plan is not
+        # hidden behind `| tee` (the default shell has no pipefail).
+        shell: bash
+        working-directory: ${{ matrix.dir }}
+    env:
+      TF_STATE_BUCKET: ${{ vars.TF_STATE_BUCKET }}
+      PLAN_FILE: ${{ github.workspace }}/plan-${{ matrix.stack }}.txt
+
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
+        uses: hashicorp/setup-terraform@v4
         with:
-          terraform_version: 1.6.6
+          terraform_version: 1.17.2
+          terraform_wrapper: false
 
-      # OIDC Auth (recommended) - uncomment when configured
-      # - name: Configure AWS Credentials (OIDC)
-      #   uses: aws-actions/configure-aws-credentials@v4
-      #   with:
-      #     role-to-assume: arn:aws:iam::ACCOUNT_ID:role/GitHubActionsRole
-      #     aws-region: us-east-1
+      - name: Configure AWS Credentials (OIDC, read-only plan role)
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ secrets.AWS_PLAN_ROLE_ARN }}
+          aws-region: us-east-2
+          mask-aws-account-id: true
 
       - name: Terraform Init
-        run: terraform init -backend=false
+        run: terraform init -input=false -backend-config="bucket=${TF_STATE_BUCKET}"
 
       - name: Terraform Plan
         id: plan
-        run: terraform plan -no-color 2>&1 | tee plan.txt
+        run: terraform plan -input=false -no-color -lock-timeout=5m 2>&1 | tee "$PLAN_FILE"
         continue-on-error: true
 
+      # Logs mask the account ID; the PR comment is built from the file, so
+      # redact it there too.
+      - name: Redact account ID from plan text
+        run: |
+          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+          sed -i "s/${ACCOUNT_ID}/<account-id>/g" "$PLAN_FILE"
+
       - name: Post Plan to PR
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
+        env:
+          STACK: ${{ matrix.stack }}
+          PLAN_OUTCOME: ${{ steps.plan.outcome }}
         with:
           script: |
             const fs = require('fs');
-            const plan = fs.readFileSync('plan.txt', 'utf8');
-            const maxLen = 65000;
-            let body = '## 📋 Terraform Plan\n\n';
-            body += plan.length > maxLen 
+            const plan = fs.readFileSync(process.env.PLAN_FILE, 'utf8');
+            const maxLen = 60000;
+            let body = `## 📋 Terraform Plan: \`${process.env.STACK}\`\n\n`;
+            body += plan.length > maxLen
               ? '```hcl\n' + plan.substring(0, maxLen) + '\n... (truncated)\n```'
               : '```hcl\n' + plan + '\n```';
-            body += '\n\n' + ('${{ steps.plan.outcome }}' === 'failure' ? '❌ Plan failed' : '✅ Plan succeeded');
-            github.rest.issues.createComment({
+            body += '\n\n' + (process.env.PLAN_OUTCOME === 'failure' ? '❌ Plan failed' : '✅ Plan succeeded');
+            await github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,

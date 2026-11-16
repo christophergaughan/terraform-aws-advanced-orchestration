@@ -9,12 +9,23 @@ jobs:
   tfsec:
     name: tfsec
     runs-on: ubuntu-latest
+    # tfsec only scans the root module it is pointed at (plus the modules that
+    # root calls), so each independent stack is scanned separately.
+    strategy:
+      fail-fast: false
+      matrix:
+        dir: [".", "monitoring/terraform", "bootstrap"]
     steps:
       - uses: actions/checkout@v4
       - name: tfsec
         uses: aquasecurity/tfsec-action@v1.0.3
         with:
-          soft_fail: false
+          working_directory: ${{ matrix.dir }}
+          # Do NOT set soft_fail here, not even to false. tfsec-action's
+          # entrypoint enables --soft-fail whenever the input is non-empty
+          # ([ -n "$INPUT_SOFT_FAIL" ]), so `soft_fail: false` turns it ON
+          # and findings never fail the build. Leaving it unset = hard fail.
+          #
           # The action resolves the tfsec release through the GitHub API.
           # Unauthenticated, shared runner IPs hit the rate limit and the job
           # fails before any scanning happens - which looks like a security

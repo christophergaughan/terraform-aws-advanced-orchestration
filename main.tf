@@ -9,22 +9,39 @@ module "vpc" {
   public_subnet_count = 1
 }
 
-# IAM Lambda module
+data "aws_caller_identity" "current" {}
+
+data "aws_region" "current" {}
+
+locals {
+  lambda_function_name    = "my_lambda_function"
+  sagemaker_endpoint_name = "my-sagemaker-endpoint"
+
+  account_id           = data.aws_caller_identity.current.account_id
+  region               = data.aws_region.current.region
+  lambda_log_group_arn = "arn:aws:logs:${local.region}:${local.account_id}:log-group:/aws/lambda/${local.lambda_function_name}"
+}
+
+# IAM Lambda module - least privilege: this function's own log group and the
+# one endpoint it calls, in this account and region only.
 data "aws_iam_policy_document" "lambda_basic" {
   statement {
-    actions = [
-      "logs:CreateLogGroup",
-      "logs:CreateLogStream",
-      "logs:PutLogEvents"
-    ]
-    resources = ["arn:aws:logs:*:*:log-group:/aws/lambda/*"]
+    actions   = ["logs:CreateLogGroup"]
+    resources = [local.lambda_log_group_arn]
   }
   statement {
     actions = [
-      "sagemaker:InvokeEndpoint"
+      "logs:CreateLogStream",
+      "logs:PutLogEvents"
     ]
-    # Scoped to specific endpoint pattern
-    resources = ["arn:aws:sagemaker:*:*:endpoint/my-sagemaker-*"]
+    # Lambda names its log streams at runtime, so the stream segment is "*"
+    # inside this function's log group.
+    #tfsec:ignore:aws-iam-no-policy-wildcards
+    resources = ["${local.lambda_log_group_arn}:log-stream:*"]
+  }
+  statement {
+    actions   = ["sagemaker:InvokeEndpoint"]
+    resources = ["arn:aws:sagemaker:${local.region}:${local.account_id}:endpoint/${local.sagemaker_endpoint_name}"]
   }
 }
 
@@ -34,12 +51,23 @@ module "iam_lambda" {
   policy_json = data.aws_iam_policy_document.lambda_basic.json
 }
 
+# Lambda deployment package, built by Terraform from source so plan works on
+# a clean checkout (CI) without a pre-built, gitignored zip. boto3 ships in the
+# Lambda Python runtime, so the handler file is the whole package.
+data "archive_file" "lambda" {
+  type        = "zip"
+  source_file = "${path.module}/lambda_function/lambda_function.py"
+  output_path = "${path.module}/lambda_function_payload.zip"
+}
+
 # Lambda module
 module "lambda" {
-  source        = "./modules/lambda"
-  function_name = "my_lambda_function"
-  role_arn      = module.iam_lambda.role_arn
-  filename      = "lambda_function_payload.zip"
+  source                  = "./modules/lambda"
+  function_name           = local.lambda_function_name
+  role_arn                = module.iam_lambda.role_arn
+  filename                = data.archive_file.lambda.output_path
+  source_code_hash        = data.archive_file.lambda.output_base64sha256
+  sagemaker_endpoint_name = local.sagemaker_endpoint_name
 }
 
 # EventBridge module

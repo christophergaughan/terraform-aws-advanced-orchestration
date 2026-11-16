@@ -57,3 +57,9 @@ __pycache__/
 
 # macOS
 .DS_Store
+
+# Terraform plan output written by CI
+plan.txt
+plan-*.txt
+tfplan
+*.tfplan

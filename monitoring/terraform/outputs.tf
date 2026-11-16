@@ -5,6 +5,6 @@ output "grafana_workspace_url" {
 
 output "prometheus_workspace_id" {
   description = "ID of the Prometheus (AMP) workspace"
-  value       = aws_prometheus_workspace.monitoring.workspace_id
+  value       = aws_prometheus_workspace.monitoring.id
 }
 
