@@ -131,7 +131,7 @@ You should get two PR comments, one per stack, with the account ID redacted.
 Then clean up:
 
 ```bash
-gh pr close --delete-branch
+gh pr close try-plan --delete-branch
 git switch main
 ```
 
